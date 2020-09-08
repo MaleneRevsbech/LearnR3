@@ -1,14 +1,79 @@
 ---
-title: "Draft R Markdown document"
-author: "Your Name"
+title: "Lesson"
+author: "Malene"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+## Importing raw data
+
+```{r setup}
+# add new code chunk with Ctrl-Alt-I
+library(vroom) # veeery fast to load data
+library(here)
 ```
 
-```{r}
-# Code chunk
+```{r loading files}
+user_1_info_file <- here("data-raw/mmash/user_1/user_info.csv")
+user_1_info_data <- vroom(user_1_info_file)
+
+# you can use this to look at the columns
+spec(user_1_info_data)
+# col_double(): numeric (non-integer numbers) 
+# col_character(): character data type
+
+# only guessing until the first 1000 rows, so if there is a lot of NA, then it will maybe assign the wrong type
+#this code does not work because of the "..1" column
+#user_1_info_data <- vroom(
+ #   user_1_info_file,
+  #  col_types = cols(
+   #     ...1 = col_double(),
+    #    Gender = col_character(),
+     #   Weight = col_double(),
+      #  Height = col_double(),
+       # Age = col_double(),
+  #      .delim = ","
+  #  )
+#)
+
+# dplyr::select(): using "-" before the column name (or number) means to drop the column, 
+# so in this case, we could drop the first column with col_select = -1
+
+user_1_info_data <- vroom(
+    user_1_info_file,
+    col_select = -1,
+    col_types = cols(
+        Gender = col_character(),
+        Weight = col_double(),
+        Height = col_double(),
+        Age = col_double()
+    ),
+    .name_repair = snakecase::to_snake_case
+)
+
+# look at the data
+user_1_info_data
+
+```
+
+
+## Exercise: Import the saliva data
+
+```{r loading in the salvia data}
+user_1_saliva_file <- here("data-raw/mmash/user_1/saliva.csv")
+user_1_saliva_data_prep <- vroom(user_1_saliva_file,
+                                 col_select = -1) #already removing the first column
+spec(user_1_saliva_data_prep)
+
+user_1_saliva_data <- vroom(
+    user_1_saliva_file,
+    col_select = -1,
+    col_types = cols(SAMPLES = col_character(),
+  `Cortisol NORM` = col_double(),
+  `Melatonin NORM` = col_double()),
+    .name_repair = snakecase::to_snake_case
+)
+
+# take a look at it
+user_1_saliva_data
 ```
 
